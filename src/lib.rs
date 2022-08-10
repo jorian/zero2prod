@@ -4,8 +4,8 @@ pub mod startup;
 
 use actix_web::{dev::Server, web, App, HttpServer};
 use routes::*;
-use sqlx::{ PgPool};
-use std::{net::TcpListener};
+use sqlx::PgPool;
+use std::net::TcpListener;
 
 pub fn run(connection_pool: PgPool, listener: TcpListener) -> Result<Server, std::io::Error> {
     let web_data = web::Data::new(connection_pool);
