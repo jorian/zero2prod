@@ -12,7 +12,10 @@ pub fn run(connection_pool: PgPool, listener: TcpListener) -> Result<Server, std
     let server = HttpServer::new(move || {
         App::new()
             .route("health_check", web::get().to(health_check::health_check))
-            .route("subscriptions", web::post().to(subscriptions::subscribe))
+            .route(
+                "subscriptions",
+                web::post().to(subscriptions::subscribe_to_mailing_list),
+            )
             .app_data(web_data.clone())
     })
     .listen(listener)?
