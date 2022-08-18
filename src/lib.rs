@@ -1,6 +1,7 @@
 pub mod configuration;
 pub mod routes;
 pub mod startup;
+pub mod telemetry;
 
 use actix_web::{dev::Server, web, App, HttpServer};
 use routes::*;
@@ -14,7 +15,7 @@ pub fn run(connection_pool: PgPool, listener: TcpListener) -> Result<Server, std
             .route("health_check", web::get().to(health_check::health_check))
             .route(
                 "subscriptions",
-                web::post().to(subscriptions::subscribe_to_mailing_list),
+                web::post().to(subscriptions::subscribe),
             )
             .app_data(web_data.clone())
     })
