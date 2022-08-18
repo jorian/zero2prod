@@ -1,7 +1,9 @@
+// use config::Environment;
+
 #[derive(serde::Deserialize)]
 pub struct Settings {
     pub database: DatabaseSettings,
-    pub application_port: u16,
+    pub application: ApplicationSettings,
 }
 
 #[derive(serde::Deserialize)]
@@ -15,10 +17,44 @@ pub struct DatabaseSettings {
 
 pub fn get_configuration() -> Result<Settings, config::ConfigError> {
     let mut settings = config::Config::default();
+    let base_path = std::env::current_dir().expect("Failed to determine current dir");
+    let config_dir = base_path.join("configuration");
 
-    settings.merge(config::File::with_name("configuration"))?;
+    settings.merge(config::File::from(config_dir.join("base")).required(true))?;
+
+    let env: Environment = std::env::var("APP_ENVIRONMENT")
+        .unwrap_or_else(|_| "local".into())
+        .try_into()
+        .expect("failed to parse app_env");
+
+    settings.merge(config::File::from(config_dir.join(env.as_str())).required(true))?;
 
     settings.try_into()
+}
+
+pub enum Environment {
+    Local,
+    Production,
+}
+
+impl Environment {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            Environment::Local => "local",
+            Environment::Production => "production",
+        }
+    }
+}
+
+impl TryFrom<String> for Environment {
+    type Error = String;
+    fn try_from(s: String) -> Result<Self, Self::Error> {
+        match s.to_lowercase().as_str() {
+            "local" => Ok(Self::Local),
+            "production" => Ok(Self::Production),
+            other => Err(format!("{} is not a valid environment", other)),
+        }
+    }
 }
 
 impl DatabaseSettings {
@@ -35,4 +71,10 @@ impl DatabaseSettings {
             self.username, self.password, self.host, self.port
         )
     }
+}
+
+#[derive(serde::Deserialize)]
+pub struct ApplicationSettings {
+    pub port: u16,
+    pub host: String,
 }
