@@ -11,6 +11,7 @@ async fn main() -> std::io::Result<()> {
     init_subscriber(subscriber);
 
     info!("tracing initiated");
+    info!("tracing initiated");
 
     let config = get_configuration().expect("failed to read configuration");
     let address = format!("{}:{}", config.application.host, config.application.port);
