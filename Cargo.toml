@@ -29,6 +29,7 @@ features = [
   "uuid",
   "chrono",
   "migrate",
+  "offline",
 ]
 version = "0.6"
 
